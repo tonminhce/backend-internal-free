@@ -1,6 +1,6 @@
 import { detectLang, LANG_LABELS } from './lib/lang.js';
 import { canHighlight, highlight } from './lib/syntax.js';
-import { escapeHtml, fold, formatNumber } from './lib/text.js';
+import { escapeHtml, fold, formatDate, formatNumber } from './lib/text.js';
 import { lessonUrl, navigate, parseHash, partUrl } from './lib/router.js';
 import { makeDoc, markSnippet, search, sectionAt } from './lib/search.js';
 
@@ -8,6 +8,13 @@ const el = (id) => document.getElementById(id);
 const esc = escapeHtml;
 const fmt = (n) => formatNumber(n);
 const clamp = (n, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, n));
+
+/* The one way a number is quoted on screen: figure in mono, label quiet. Header pill, hero,
+   card footers and the reader meta all go through here so the rows line up everywhere. */
+const statAttr = (cls) => (cls ? ` class="stat ${cls}"` : ' class="stat"');
+const stat = (value, label, cls) => `<span${statAttr(cls)}><b>${value}</b> ${label}</span>`;
+const statPre = (label, value, cls) => `<span${statAttr(cls)}>${label} <b>${value}</b></span>`;
+const statText = (text, cls) => `<span${statAttr(cls)}>${text}</span>`;
 
 const store = {
   get(key, fallback) {
@@ -183,9 +190,9 @@ function markActive(slug) {
 function refreshProgress() {
   const list = readable();
   const done = list.filter((a) => state.read.has(a.slug)).length;
-  const stat = el('progressStat');
-  stat.textContent = `${done} / ${list.length}`;
-  stat.title = `Đã đánh dấu đọc ${done}/${list.length} bài`;
+  const pill = el('progressStat');
+  pill.innerHTML = `<b>${done}/${list.length}</b> đã đọc`;
+  pill.title = `Đã đánh dấu đọc ${done}/${list.length} bài`;
   buildSidebar();
   markActive(state.route?.slug || '');
 }
@@ -194,11 +201,14 @@ function refreshProgress() {
 function ringMarkup(done, total) {
   const pct = total ? Math.round((done / total) * 100) : 0;
   return `<div class="ring">
-    <svg viewBox="0 0 120 120" role="img" aria-label="Hoàn thành ${pct}% kho bài">
-      <circle class="track" cx="60" cy="60" r="52"></circle>
-      <circle class="value" cx="60" cy="60" r="52" data-ring-value="${pct}"></circle>
-    </svg>
-    <b>${pct}%</b><small>${done}/${total} bài đã đọc</small>
+    <div class="ring-dial">
+      <svg viewBox="0 0 120 120" role="img" aria-label="Hoàn thành ${pct}% kho bài">
+        <circle class="track" cx="60" cy="60" r="52"></circle>
+        <circle class="value" cx="60" cy="60" r="52" data-ring-value="${pct}"></circle>
+      </svg>
+      <b>${pct}%</b>
+    </div>
+    <small>${done}/${total} bài đã đọc</small>
   </div>`;
 }
 
@@ -221,14 +231,30 @@ function continueCard() {
   const [slug, p] = entry;
   const a = state.bySlug.get(slug);
   const part = state.partsById.get(a.partId);
+  const minutesLeft = Math.max(1, Math.round(a.minutes * (1 - p.ratio)));
   return `<div class="continue">
     <div class="c-body">
       <p class="c-kicker">Đọc dở</p>
       <h3><a href="${lessonUrl(slug)}">${esc(a.title)}</a></h3>
-      <p class="c-meta">${Math.round(p.ratio * 100)}% · còn ~${Math.max(1, Math.round(a.minutes * (1 - p.ratio)))}′ · ${esc(part ? part.title : '')}</p>
+      <p class="c-meta">${stat(`${Math.round(p.ratio * 100)}%`, 'đã đọc')}${stat(`${minutesLeft}′`, 'còn lại')}${part ? statText(esc(part.title)) : ''}</p>
     </div>
     <a class="btn primary" href="${lessonUrl(slug)}">Đọc tiếp</a>
   </div>`;
+}
+
+/* One part quoted as many times as it appears: count, time, progress. A part with no readable
+   lesson says so instead of showing "0′ đọc". */
+function partStats(lessons, countable, done, lastCls = '') {
+  const minutes = countable.reduce((s, a) => s + a.minutes, 0);
+  const push = (cls) => [cls, lastCls].filter(Boolean).join(' ');
+  const progress = countable.length
+    ? stat(`${done}/${countable.length}`, 'đã đọc', push(done === countable.length ? 'good' : ''))
+    : statText('chưa có bài toàn văn', push(''));
+  return [
+    stat(lessons.length, 'bài'),
+    ...(minutes ? [stat(`${minutes}′`, 'đọc')] : []),
+    progress,
+  ].join('');
 }
 
 function renderDashboard() {
@@ -237,10 +263,12 @@ function renderDashboard() {
   const done = list.filter((a) => state.read.has(a.slug)).length;
   const paid = m.articles.filter((a) => a.paid).length;
   const chips = freeEdition()
-    ? [`${m.articles.length} bài trong kho`, `${list.length} bài toàn văn`, `${fmt(m.counts.words)} từ`,
-        `${fmt(m.counts.images)} sơ đồ`, `dựng ngày ${esc(m.generatedAt)}`]
-    : [`${m.articles.length} bài`, `${fmt(m.counts.words)} từ`, `${paid} bài kho trả phí`,
-        `${m.articles.length - paid} bài công khai`, `${fmt(m.counts.images)} sơ đồ`, `dựng ngày ${esc(m.generatedAt)}`];
+    ? [stat(m.articles.length, 'bài trong mục lục'), stat(list.length, 'bài toàn văn'),
+        stat(fmt(m.counts.words), 'từ'), stat(fmt(m.counts.images), 'sơ đồ'),
+        statPre('dựng ngày', esc(m.generatedAt))]
+    : [stat(m.articles.length, 'bài'), stat(fmt(m.counts.words), 'từ'),
+        stat(paid, 'bài trả phí'), stat(m.articles.length - paid, 'bài công khai'),
+        stat(fmt(m.counts.images), 'sơ đồ'), statPre('dựng ngày', esc(m.generatedAt))];
   el('main').innerHTML = `<div class="wrap">
     <section class="hero">
       <div>
@@ -251,20 +279,17 @@ function renderDashboard() {
             ? 'Toàn văn các bài công khai, mục lục đầy đủ 28 bài và tìm kiếm xuyên kho.'
             : 'Toàn văn, mục lục, tìm kiếm xuyên kho và thứ tự đọc xếp sẵn — mở không cần mạng.'
         }</p>
-        <div class="hero-meta">${chips.map((c) => `<span>${c}</span>`).join('')}</div>
+        <div class="hero-meta">${chips.join('')}</div>
       </div>
       ${ringMarkup(done, list.length)}
     </section>
 
-    ${freeEdition() ? `<div class="notice">
-      ${m.articles.length - list.length} bài nữa nằm sau subscription, nên ở đây chúng chỉ còn tiêu đề, mô tả và link về bài gốc.
-      Bản công khai này gồm đúng những bài ZemIT mở miễn phí. Toàn văn bài trả phí ở <a href="https://zemitprivate.substack.com/subscribe" target="_blank" rel="noopener noreferrer">zemitprivate.substack.com</a>.
-    </div>` : ''}
+    ${freeEdition() ? `<div class="notice">${m.articles.length - list.length} bài nữa nằm sau subscription, nên ở đây chúng chỉ còn tiêu đề, mô tả và link về bài gốc. Bản công khai này gồm đúng những bài ZemIT mở miễn phí; bài trả phí đọc tại <a href="https://zemitprivate.substack.com/subscribe" target="_blank" rel="noopener noreferrer">zemitprivate.substack.com</a>.</div>` : ''}
 
     ${continueCard()}
 
     <h2 class="section-title">Lộ trình gợi ý <span class="n">${m.paths.length} lối đi</span></h2>
-    <div class="grid">${m.paths.map((p) => `<div class="path">
+    <div class="grid grid-top">${m.paths.map((p) => `<div class="path">
         <h3>${esc(p.title)}</h3>
         <p class="why">${esc(p.note)}</p>
         <ol>${p.steps.map((s) => {
@@ -281,8 +306,7 @@ function renderDashboard() {
       const done = countable.filter((a) => state.read.has(a.slug)).length;
       return `<a class="card" href="${partUrl(p.id)}">
         <h3>${esc(p.title)}</h3><p>${esc(p.summary)}</p>
-        <div class="foot"><span>${lessons.length} bài</span><span>${countable.reduce((s, a) => s + a.minutes, 0)}′ đọc</span>
-          <span class="push-right">${countable.length ? `${done}/${countable.length} đã đọc` : 'chưa có bài toàn văn'}</span></div>
+        <div class="foot">${partStats(lessons, countable, done, 'push-right')}</div>
         <div class="progress-line"><i data-fill="${countable.length ? Math.round((done / countable.length) * 100) : 0}"></i></div>
       </a>`;
     }).join('')}</div>
@@ -297,11 +321,11 @@ function renderPart(partId) {
   const countable = lessons.filter((a) => !locked(a));
   const done = countable.filter((a) => state.read.has(a.slug)).length;
   const card = (a) => `<a class="card" href="${lessonUrl(a.slug)}">
-      <h3><span class="order">${a.order}.</span> ${esc(a.title)}</h3>
+      <h3><span class="order">${a.order}</span> ${esc(a.title)}</h3>
       <p>${esc(a.dek)}</p>
       <div class="foot"><span class="tag ${a.paid ? 'paid' : 'free'}">${tagText(a)}</span>
-        ${locked(a) ? `<span>${a.minutes}′ bài gốc</span>` : `<span>${a.minutes}′</span><span>${fmt(a.words)} từ</span>`}
-        ${state.read.has(a.slug) && !locked(a) ? '<span class="done-label">đã đọc</span>' : ''}</div>
+        ${locked(a) ? stat(`${a.minutes}′`, 'bài gốc') : stat(`${a.minutes}′`, 'đọc') + stat(fmt(a.words), 'từ')}
+        ${state.read.has(a.slug) && !locked(a) ? statText('đã đọc', 'good push-right') : ''}</div>
     </a>`;
   const body = [...new Set(lessons.map((a) => a.group || ''))].map((g) => {
     const meta = part.groups.find((x) => x.id === g);
@@ -313,7 +337,7 @@ function renderPart(partId) {
     <div class="part-banner">
       <h1>${esc(part.title)}</h1>
       <p>${esc(part.summary)}</p>
-      <p class="hero-meta"><span>${lessons.length} bài</span><span>${countable.reduce((s, a) => s + a.minutes, 0)}′ đọc</span><span>${countable.length ? `${done}/${countable.length} đã đọc` : 'tất cả cần subscription'}</span></p>
+      <div class="hero-meta">${partStats(lessons, countable, done)}</div>
     </div>
     ${body || `<div class="notice">${esc(part.summary)}</div>`}
   </div>`;
@@ -379,9 +403,9 @@ async function renderArticle(route) {
         <p class="dek">${esc(article.dek)}</p>
         <div class="art-meta">
           <span class="tag ${article.paid ? 'paid' : 'free'}">${tagText(article)}</span>
-          <span>${esc(article.date)}</span><span class="sep"></span>
-          <span>${article.minutes}′ ${locked(article) ? 'bài gốc' : 'đọc'}</span>
-          ${locked(article) ? '' : `<span class="sep"></span><span>${fmt(article.words)} từ</span>`}
+          <span class="date">${esc(formatDate(article.date))}</span>
+          ${stat(`${article.minutes}′`, locked(article) ? 'bài gốc' : 'đọc')}
+          ${locked(article) ? '' : stat(fmt(article.words), 'từ')}
           <span class="spacer"></span>
           ${readButton(slug)}
         </div>

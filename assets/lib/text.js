@@ -51,6 +51,14 @@ export function snippet(raw, pos, before = 110, after = 210) {
 
 export const formatNumber = (n, locale = 'vi-VN') => n.toLocaleString(locale);
 
+/* Source dates arrive in English ("Sep 20, 2026"); the chrome around them is Vietnamese.
+   Anything unparseable is returned untouched rather than as "Invalid Date". */
+export function formatDate(s) {
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return s;
+  return d.toLocaleDateString('vi-VN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 export const readingMinutes = (wordCount) => Math.max(1, Math.round(wordCount / 200));
 
 export function formatDuration(minutes) {

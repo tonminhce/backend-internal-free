@@ -9,8 +9,10 @@
 :root {
   color-scheme: light;
 
-  /* neutral ramp, hue 222 so surfaces sit next to the accent instead of fighting it */
-  --paper: #f4f6f8;
+  /* neutral ramp, hue 222 so surfaces sit next to the accent instead of fighting it.
+     paper is deliberately a step darker than surface: cards only read as cards when the
+     page behind them is visibly further back. */
+  --paper: #e9edf3;
   --surface: #fcfdfe;
   --surface-2: #eef1f5;
   --surface-3: #e4e8ee;
@@ -238,12 +240,7 @@ kbd {
 [data-theme="dark"] .ico-moon { display: none; }
 
 .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; flex: none; }
-.stat {
-  display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px;
-  font: 600 12px/1 var(--mono); color: var(--ink-2);
-  background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-pill);
-}
-.stat::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--good); }
+#progressStat { flex: none; }
 
 .search-trigger {
   flex: 1 1 auto; max-width: 560px; margin: 0 auto; min-width: 0;
@@ -291,25 +288,33 @@ kbd {
 .part-head .count { margin-left: auto; font: 500 11px/1 var(--mono); color: var(--ink-4); }
 .part-head .count.complete { color: var(--good); }
 .part-body { padding-bottom: 4px; }
-.group-title { padding: 10px 12px 5px; font: 600 11px/1.3 var(--ui); color: var(--ink-4); }
+.group-title { padding: 11px 12px 5px; font: 600 11px/1.3 var(--ui); color: var(--ink-3); }
 .lesson {
   position: relative; display: flex; gap: 8px; align-items: baseline;
-  padding: 6px 10px; margin: 1px 0; border-radius: 8px;
-  color: var(--ink-2); font-size: 13px; line-height: 1.45; text-decoration: none;
+  padding: 7px 10px 7px 12px; margin: 1px 0; border-radius: 8px;
+  color: var(--ink-2); font-size: 13px; line-height: 1.5; text-decoration: none;
   transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
 }
 .lesson:hover { background: var(--surface-2); color: var(--ink); text-decoration: none; }
 .lesson[aria-current="page"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-.lesson .num { min-width: 17px; font: 500 11px/1.6 var(--mono); color: var(--ink-4); flex: none; }
+/* a bar in the gutter: aria-current alone is easy to lose in a dense list */
+.lesson[aria-current="page"]::before {
+  content: ""; position: absolute; left: 3px; top: 8px; bottom: 8px; width: 3px;
+  border-radius: 3px; background: var(--accent);
+}
+.lesson .num { min-width: 18px; font: 500 11px/1.6 var(--mono); color: var(--ink-4); flex: none; }
 .lesson[aria-current="page"] .num { color: var(--accent); }
-.lesson .lbl { flex: 1; }
-.lesson .mins { font: 500 10px/1 var(--mono); color: var(--ink-4); }
+.lesson .lbl { flex: 1; min-width: 0; }
+.lesson .mins { flex: none; min-width: 32px; text-align: right; font: 500 10.5px/1.6 var(--mono); color: var(--ink-3); }
 .lesson .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--good); flex: none; align-self: center; }
 .lesson .lockmark { flex: none; align-self: center; color: var(--ink-4); }
 .lesson .lockmark svg { width: 11px; height: 11px; display: block; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .lesson[data-locked] .lbl { color: var(--ink-3); }
 .lesson[aria-current="page"][data-locked] .lbl { color: var(--accent); }
-.empty-note { padding: 8px 12px; font-size: 12.5px; line-height: 1.6; color: var(--ink-4); font-style: italic; }
+.empty-note {
+  margin: 4px 12px 8px; padding: 2px 0 2px 11px; border-left: 2px solid var(--line);
+  font-size: 12.5px; line-height: 1.6; color: var(--ink-3);
+}
 .side-keys { padding: 6px 12px; font-size: 12px; line-height: 2.1; color: var(--ink-4); }
 
 /* -------------------------------------------------------------------- main */
@@ -337,30 +342,47 @@ kbd {
 .eyebrow { font: 700 11px/1 var(--ui); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
 .hero h1 { font: 700 clamp(26px, 1.4rem + 1.4vw, 38px)/1.15 var(--ui); letter-spacing: -.025em; margin-bottom: 10px; }
 .hero .lede { color: var(--ink-2); font-size: 15px; line-height: 1.7; max-width: 62ch; }
-.hero-meta { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 18px; font: 500 12px/1 var(--mono); color: var(--ink-3); }
-.hero-meta span { display: inline-flex; align-items: center; gap: 10px; }
-.hero-meta span::after { content: ""; width: 3px; height: 3px; border-radius: 50%; background: var(--ink-4); }
-.hero-meta span:last-child::after { display: none; }
+/* One stat component everywhere a number is quoted: hero, part banner, card foot, resume bar.
+   The value carries the weight and stays mono for tabular figures; the label is quiet prose. */
+.stat {
+  display: inline-flex; align-items: baseline; gap: 5px; padding: 4px 10px;
+  border: 1px solid var(--line-soft); border-radius: var(--r-pill);
+  background: var(--surface-2); color: var(--ink-3); font: 500 12px/1.45 var(--ui); white-space: nowrap;
+}
+.stat b { font: 600 12.5px/1.45 var(--mono); color: var(--ink-2); letter-spacing: -.01em; }
+.stat.good { border-color: color-mix(in oklab, var(--good) 26%, var(--line)); background: var(--good-soft); color: var(--good); }
+.stat.good b { color: var(--good); }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
 
 .ring { display: flex; flex-direction: column; align-items: center; flex: none; }
-.ring svg { width: 130px; height: 130px; }
-.ring .track { fill: none; stroke: var(--surface-3); stroke-width: 9; }
+.ring-dial { position: relative; width: 132px; height: 132px; }
+.ring-dial svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* the percentage belongs inside the dial it measures, not under it */
+.ring-dial b {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font: 700 27px/1 var(--mono); letter-spacing: -.03em; color: var(--ink);
+}
+.ring .track { fill: none; stroke: color-mix(in oklab, var(--ink) 11%, transparent); stroke-width: 8; }
 .ring .value {
-  fill: none; stroke: var(--accent); stroke-width: 9; stroke-linecap: round;
+  fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round;
   transform: rotate(-90deg); transform-origin: center;
   transition: stroke-dashoffset var(--slow) var(--ease-out);
 }
-.ring b { font: 700 23px/1 var(--mono); letter-spacing: -.02em; }
-.ring small { display: block; margin-top: 4px; font: 500 11px/1.4 var(--ui); color: var(--ink-3); }
+.ring small { margin-top: 11px; font: 500 11.5px/1.4 var(--ui); color: var(--ink-3); }
 
 .section-title {
-  display: flex; align-items: center; gap: 12px; margin: 38px 0 16px;
-  font: 700 12px/1 var(--ui); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+  display: flex; align-items: center; gap: 12px; margin: 44px 0 18px;
+  font: 700 13.5px/1 var(--ui); letter-spacing: .07em; text-transform: uppercase; color: var(--ink-2);
 }
-.section-title::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-.section-title .n { font: 500 11px/1 var(--mono); color: var(--ink-4); letter-spacing: 0; text-transform: none; }
+.section-title::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
+.section-title .n {
+  padding: 3px 9px; border-radius: var(--r-pill); background: var(--surface-2);
+  color: var(--ink-3); font: 600 11px/1.5 var(--ui); letter-spacing: .02em; text-transform: none;
+}
 
 .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(292px, 1fr)); }
+/* a path card with four steps should not be stretched to the height of a five-step one */
+.grid-top { align-items: start; }
 .card {
   display: flex; flex-direction: column; gap: 8px;
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
@@ -371,15 +393,12 @@ kbd {
   text-decoration: none; border-color: var(--accent-line); box-shadow: var(--shadow-2);
   transform: translateY(-2px);
 }
-.card h3 { font: 600 15.5px/1.4 var(--ui); letter-spacing: -.011em; }
-.card h3 .order { font: 500 12px/1 var(--mono); color: var(--ink-4); margin-right: 6px; }
+/* flex so a wrapped title hangs under its own text instead of under the order gutter */
+.card h3 { display: flex; align-items: baseline; gap: 8px; font: 600 15.5px/1.4 var(--ui); letter-spacing: -.011em; }
+.card h3 .order { flex: none; min-width: 14px; text-align: right; font: 500 11.5px/1.4 var(--mono); color: var(--ink-4); }
 .card p { color: var(--ink-2); font-size: 13.5px; line-height: 1.65; flex: 1; }
-.card .foot {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 4px;
-  font: 500 11.5px/1.4 var(--mono); color: var(--ink-3);
-}
+.card .foot { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
 .push-right { margin-left: auto; }
-.done-label { color: var(--good); display: inline-flex; align-items: center; gap: 4px; }
 .progress-line { height: 4px; border-radius: var(--r-pill); background: var(--surface-3); overflow: hidden; }
 .progress-line i { display: block; height: 100%; background: var(--good); transition: width var(--slow) var(--ease-out); }
 
@@ -393,7 +412,7 @@ kbd {
 .continue h3 { font: 600 15.5px/1.4 var(--ui); }
 .continue h3 a { color: var(--ink); text-decoration: none; }
 .continue h3 a:hover { color: var(--accent); text-decoration: underline; }
-.continue .c-meta { margin-top: 6px; font: 500 11.5px/1 var(--mono); color: var(--ink-3); }
+.continue .c-meta { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; }
 
 .path {
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
@@ -403,8 +422,9 @@ kbd {
 .path .why { margin: 6px 0 12px; color: var(--ink-2); font-size: 13.5px; line-height: 1.65; }
 .path ol { padding-left: 0; list-style: none; counter-reset: step; }
 .path li {
-  display: flex; gap: 10px; align-items: baseline; padding: 8px 0;
-  border-top: 1px dashed var(--line-soft); counter-increment: step; font-size: 13.5px;
+  display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 0 10px;
+  align-items: baseline; padding: 9px 0;
+  border-top: 1px solid var(--line-soft); counter-increment: step; font-size: 13.5px;
 }
 .path li:first-child { border-top: 0; }
 .path li::before {
@@ -413,9 +433,9 @@ kbd {
   background: var(--accent-soft); color: var(--accent); font: 600 10.5px/1 var(--mono);
 }
 .path li.done::before { content: "\2713"; background: var(--good-soft); color: var(--good); }
-.path li a { color: var(--ink); text-decoration: none; flex: 1; line-height: 1.55; }
+.path li a { color: var(--ink); text-decoration: none; min-width: 0; line-height: 1.55; }
 .path li a:hover { color: var(--accent); text-decoration: underline; }
-.path .mins { font: 500 11px/1 var(--mono); color: var(--ink-4); flex: none; }
+.path .mins { min-width: 34px; text-align: right; font: 500 11px/1.5 var(--mono); color: var(--ink-3); }
 
 /* ----------------------------------------------------------------- reader  */
 .reader {
@@ -428,8 +448,8 @@ kbd {
   position: sticky; top: calc(var(--hdr) + 4px); z-index: 30;
   display: flex; align-items: center; gap: 12px; margin: 0 0 18px; padding: 9px 14px;
   border: 1px solid var(--line); border-radius: var(--r-md);
-  background: color-mix(in oklab, var(--surface) 92%, transparent);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: var(--shadow-1);
+  /* opaque: a 92% wash lets the paragraph you are reading ghost through the bar */
+  background: var(--surface); box-shadow: var(--shadow-2);
   opacity: 0; visibility: hidden; transform: translateY(-6px);
   transition: opacity var(--base) var(--ease), transform var(--base) var(--ease), visibility var(--base);
 }
@@ -452,10 +472,10 @@ kbd {
 .crumbs .crumb-sep { color: var(--ink-4); }
 .crumbs .here { color: var(--ink-2); }
 
-.art-title { font: 700 clamp(27px, 1.3rem + 1.5vw, 40px)/1.16 var(--ui); letter-spacing: -.028em; margin-bottom: 14px; }
+.art-title { font: 700 clamp(27px, 1.3rem + 1.5vw, 40px)/1.16 var(--ui); letter-spacing: -.015em; margin-bottom: 14px; }
 .dek { color: var(--ink-2); font: 400 17.5px/1.62 var(--read); max-width: 62ch; margin-bottom: 18px; }
-.art-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; font: 500 12px/1.4 var(--mono); color: var(--ink-3); }
-.art-meta .sep { width: 1px; height: 12px; background: var(--line); }
+.art-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 9px 10px; }
+.art-meta .date { font: 500 12.5px/1.4 var(--ui); color: var(--ink-3); }
 .art-meta .spacer { flex: 1; }
 
 .btn {
@@ -494,7 +514,7 @@ kbd {
 .prose > *:first-child { margin-top: 0; }
 .prose p { margin: 0 0 1.15em; }
 .prose h2, .prose h3, .prose h4, .prose h5 {
-  font-family: var(--ui); letter-spacing: -.02em; line-height: 1.32;
+  font-family: var(--ui); letter-spacing: -.015em; line-height: 1.32;
   scroll-margin-top: calc(var(--hdr) + 64px); position: relative; text-wrap: balance;
 }
 .prose h2 { margin: 2em 0 .75em; font-size: 1.5em; font-weight: 700; padding-bottom: .28em; border-bottom: 1px solid var(--line-soft); }
@@ -521,10 +541,9 @@ kbd {
 
 /* inline code + code blocks ----------------------------------------------- */
 .prose code {
-  font-family: var(--mono); font-size: .84em; font-variant-ligatures: none;
-  padding: .12em .35em; border-radius: 5px;
-  background: color-mix(in oklab, var(--accent) 7%, var(--surface-2));
-  border: 1px solid var(--line-soft); color: var(--ink);
+  font-family: var(--mono); font-size: .83em; font-variant-ligatures: none;
+  padding: .1em .34em; border-radius: 4px;
+  background: color-mix(in oklab, var(--ink) 6%, var(--surface)); color: var(--ink);
   overflow-wrap: anywhere;
 }
 
@@ -626,7 +645,7 @@ kbd {
 .rail a {
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   margin-left: -15px; padding: 5px 6px 5px 14px; border-left: 2px solid transparent;
-  color: var(--ink-3); font: 500 12.8px/1.45 var(--ui); text-decoration: none;
+  color: var(--ink-3); font: 500 13px/1.5 var(--ui); text-decoration: none;
   transition: color var(--fast) var(--ease), border-color var(--fast) var(--ease);
 }
 .rail a:hover { color: var(--ink); border-left-color: var(--ink-4); text-decoration: none; }
@@ -666,6 +685,7 @@ kbd {
 }
 .part-banner h1 { font: 700 clamp(24px, 1.2rem + 1vw, 32px)/1.2 var(--ui); letter-spacing: -.025em; }
 .part-banner p { color: var(--ink-2); font-size: 14.5px; line-height: 1.65; flex-basis: 100%; max-width: 68ch; }
+.part-banner .hero-meta { flex-basis: 100%; margin-top: 2px; }
 .wrap .group-title {
   padding: 0; margin: 30px 0 14px; font: 700 11.5px/1 var(--ui); letter-spacing: .09em;
   text-transform: uppercase; color: var(--ink-4);
@@ -702,21 +722,23 @@ kbd {
 .search-results { overflow: auto; padding: 6px; flex: 1; overscroll-behavior: contain; scrollbar-width: thin; }
 .search-group { padding: 12px 12px 5px; font: 700 10.5px/1 var(--ui); letter-spacing: .09em; text-transform: uppercase; color: var(--ink-4); }
 .hit {
-  display: block; width: 100%; text-align: left; padding: 10px 12px; border-radius: 9px;
-  border: 1px solid transparent; background: transparent; color: var(--ink); cursor: pointer;
+  display: block; width: 100%; text-align: left; padding: 12px 13px; border-radius: 10px;
+  border: 1px solid transparent; border-bottom-color: var(--line-soft);
+  background: transparent; color: var(--ink); cursor: pointer;
   font: inherit; text-decoration: none;
   transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease);
 }
-.hit + .hit { margin-top: 2px; }
-.hit:hover { background: var(--surface-2); }
+.hit:last-child { border-bottom-color: transparent; }
+.hit:hover { background: var(--surface-2); border-bottom-color: var(--line); }
 .hit.sel { background: var(--accent-soft); border-color: var(--accent-line); }
 .hit .h-top { display: flex; align-items: baseline; gap: 10px; }
 .hit .h-title { font: 600 14px/1.4 var(--ui); letter-spacing: -.01em; }
-.hit .h-part { margin-left: auto; flex: none; font: 500 11px/1 var(--mono); color: var(--ink-4); }
-.hit .h-snip { margin-top: 3px; font: 400 13px/1.6 var(--read); color: var(--ink-2); }
+.hit .h-part { margin-left: auto; flex: none; font: 500 11.5px/1.4 var(--ui); color: var(--ink-3); }
+.hit .h-snip { margin-top: 4px; font: 400 13px/1.6 var(--read); color: var(--ink-2); }
+/* matches are a warm highlight, so they never read as the inline code chips around them */
 .hit mark, .search-hint mark {
-  background: color-mix(in oklab, var(--accent) 26%, transparent); color: inherit;
-  border-radius: 3px; padding: 0 2px; box-decoration-break: clone;
+  background: color-mix(in oklab, var(--warn) 24%, transparent); color: inherit; font-weight: 600;
+  border-radius: 3px; padding: .04em .14em; box-decoration-break: clone;
 }
 .hit .h-sec { margin-top: 5px; font: 500 11.5px/1.4 var(--ui); color: var(--accent); }
 .search-empty { padding: 30px 20px; text-align: center; color: var(--ink-3); font-size: 13.5px; line-height: 1.7; }
@@ -766,7 +788,7 @@ kbd {
 .toast svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; flex: none; }
 
 .notice {
-  display: flex; align-items: flex-start; gap: 11px; padding: 14px 16px;
+  padding: 14px 16px; max-width: 74ch;
   border: 1px solid var(--accent-line); border-radius: var(--r-md);
   background: var(--accent-soft); color: var(--ink-2); font-size: 13.5px; line-height: 1.65;
 }
@@ -817,7 +839,7 @@ kbd {
 }
 @media (max-width: 560px) {
   .hero { padding: 22px 20px; }
-  .stat { display: none; }
+  #progressStat { display: none; }
   .prose pre { font-size: 12.6px; }
   .search-overlay { padding: 0; }
   .search-panel { max-height: 100dvh; height: 100dvh; border-radius: 0; border: 0; }
