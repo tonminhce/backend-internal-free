@@ -1,0 +1,1 @@
+{"slug":"kafka-broker-vi-sao-no-chiu-uoc-tai","title":"Kafka broker: cơ chế chịu tải lớn và các đảm bảo cho dữ liệu","text":"Kafka broker: cơ chế chịu tải lớn và các đảm bảo cho dữ liệu. Nửa đầu: cơ chế giúp broker chịu tải lớn (log, page cache, zero-copy, batch). Nửa sau: những gì broker đảm bảo cho dữ liệu sau khi đổi lấy throughput (ISR, acks, retention, ACL)."}

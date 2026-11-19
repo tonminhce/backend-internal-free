@@ -1,0 +1,1 @@
+{"slug":"kafka-consumer-best-practice-lay","title":"Kafka consumer best practice: lấy batching làm trung tâm","text":"Kafka consumer best practice: lấy batching làm trung tâm. Commit từng message có thể làm consumer chậm hàng chục lần. Bài đi qua cách xử lý, ghi và commit theo lô với consumer Java, Spring Kafka và kafka-go."}

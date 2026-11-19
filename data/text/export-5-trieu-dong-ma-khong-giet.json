@@ -1,0 +1,1 @@
+{"slug":"export-5-trieu-dong-ma-khong-giet","title":"Export 5 triệu dòng mà không giết database: offset, keyset, id-list và streaming","text":"Export 5 triệu dòng mà không giết database: offset, keyset, id-list và streaming. Vì sao LIMIT/OFFSET làm job export chậm dần theo từng trang, và cách đọc 5 triệu dòng bằng keyset, id-list hay streaming mà không làm nghẽn database."}

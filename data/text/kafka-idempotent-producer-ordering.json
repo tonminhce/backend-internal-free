@@ -1,0 +1,1 @@
+{"slug":"kafka-idempotent-producer-ordering","title":"Kafka idempotent producer: ordering, duplicate và sequence number","text":"Kafka idempotent producer: ordering, duplicate và sequence number. Vì sao in-flight bằng 5 vẫn giữ thứ tự, broker chặn bản trùng bằng sổ 5 batch gần nhất ra sao, và vì sao consumer vẫn phải tự chống trùng theo version"}

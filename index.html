@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backend Internal — các bài công khai</title>
+<meta name="description" content="Bản công khai của kho bài Backend Internal (ZemIT): toàn văn các bài mở miễn phí về Database, Security, Kafka và Concurrency, kèm mục lục đầy đủ và tìm kiếm.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fcfdfe">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14181f">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; form-action 'none'; object-src 'none'; base-uri 'self'">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/favicon.svg">
+<link rel="manifest" href="site.webmanifest">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/app.css">
+<link rel="preload" href="assets/fonts/bevietnampro-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/bevietnampro-vietnamese-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/sourceserif4-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/sourceserif4-vietnamese.woff2" as="font" type="font/woff2" crossorigin>
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua để vào nội dung</a>
+
+<div class="shell" id="shell">
+  <header class="topbar" id="topbar">
+    <button id="menuToggle" class="icon-btn" type="button" aria-label="Đóng/mở mục lục" aria-controls="sidebar" aria-expanded="true">
+      <svg class="ico-menu" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h16"/></svg>
+    </button>
+    <a class="brand" href="#/">
+      <span class="brand-mark">B/</span>
+      <span class="brand-text">
+        <strong>Backend Internal</strong>
+        <small>kho bài của ZemIT · bản công khai</small>
+      </span>
+    </a>
+    <button class="search-trigger" id="searchTrigger" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <span class="st-label">Tìm trong toàn bộ kho bài…</span>
+      <kbd>/</kbd>
+    </button>
+    <div class="topbar-actions">
+      <span class="stat" id="progressStat">0 / 0</span>
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Đổi giao diện sáng tối" aria-pressed="false">
+        <svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+        <svg class="ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14a8 8 0 1 1-9-11 7 7 0 0 0 9 11z"/></svg>
+      </button>
+    </div>
+    <div class="readbar" id="readBar"><div class="readbar-fill"></div></div>
+  </header>
+
+  <nav class="sidebar" id="sidebar" aria-label="Mục lục kho bài"></nav>
+
+  <main class="main" id="main" tabindex="-1"></main>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+
+<div class="search-overlay" id="searchOverlay" hidden>
+  <div class="search-panel" id="searchPanel" role="dialog" aria-modal="true" aria-label="Tìm trong kho bài">
+    <div class="search-field">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="searchInput" type="search" placeholder="gap lock, keyset, acks.all, volatile…" autocomplete="off" spellcheck="false" aria-controls="searchResults" aria-expanded="false" aria-describedby="searchHint">
+      <span class="search-spinner" id="searchSpinner" hidden></span>
+      <kbd>Esc</kbd>
+    </div>
+    <p class="search-hint" id="searchHint">Nhập ít nhất 2 ký tự. Bỏ dấu vẫn tìm được.</p>
+    <div class="search-results" id="searchResults" role="region" aria-label="Kết quả tìm kiếm"></div>
+    <div class="search-foot">
+      <span><kbd>↑</kbd> <kbd>↓</kbd> di chuyển</span>
+      <span><kbd>Enter</kbd> mở đúng mục</span>
+      <span><kbd>Esc</kbd> đóng</span>
+      <span>Tìm không phân biệt dấu</span>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Sơ đồ phóng to" hidden>
+  <button class="lb-close" id="lbClose" type="button" aria-label="Đóng ảnh phóng to">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+  </button>
+  <figure>
+    <img id="lbImg" alt="">
+    <figcaption id="lbCap"></figcaption>
+  </figure>
+</div>
+
+<div class="toast-host" id="toastHost" aria-live="polite"></div>
+
+<noscript>
+  <div class="wrap">
+    <p class="notice">
+      Trang này cần JavaScript để dựng mục lục và tìm kiếm. Toàn văn từng bài vẫn nằm trong
+      <code>data/articles/</code> và <code>content/</code>, mở bằng trình soạn thảo là đọc được.
+    </p>
+  </div>
+</noscript>
+
+<script src="assets/app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+{"slug":"chon-kieu-id-cho-he-thong-hien-ai","title":"Chọn kiểu ID cho hệ thống hiện đại: từ auto-increment tới ULID","text":"Chọn kiểu ID cho hệ thống hiện đại: từ auto-increment tới ULID. Auto-increment gắn việc tạo ID vào database và lộ 4 giới hạn khi hệ lớn lên. So UUIDv4, Snowflake, ULID/UUIDv7 để biết khi nào dùng gì, khi nào không."}

@@ -1,0 +1,1 @@
+{"slug":"b-tree-clustered-index-va-cai-gia","title":"B-tree, clustered index và cái giá của ghi random","text":"B-tree, clustered index và cái giá của ghi random. Vì sao UUIDv4 làm primary key khiến INSERT chậm dần, page split xảy ra khắp cây và bảng phân mảnh: đi từ page, buffer pool đến playbook rebuild."}

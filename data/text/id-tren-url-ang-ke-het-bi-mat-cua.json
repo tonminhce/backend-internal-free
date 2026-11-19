@@ -1,0 +1,1 @@
+{"slug":"id-tren-url-ang-ke-het-bi-mat-cua","title":"Lộ ID trên API: các tầng phòng thủ không cần sửa database","text":"Lộ ID trên API: các tầng phòng thủ không cần sửa database. Không cần migrate primary key: một tầng dịch đặt tại API boundary vừa che quy mô business, vừa chặn cache penetration trước khi chạm database."}

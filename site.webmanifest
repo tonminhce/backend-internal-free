@@ -1,0 +1,26 @@
+{
+  "name": "Backend Internal",
+  "short_name": "Backend Internal",
+  "description": "Các bài công khai của kho bài Backend Internal by ZemIT: Database, Security, System Design, Kafka, Redis, Elasticsearch, Concurrency.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#fcfdfe",
+  "icons": [
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

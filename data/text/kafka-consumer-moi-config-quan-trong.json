@@ -1,0 +1,1 @@
+{"slug":"kafka-consumer-moi-config-quan-trong","title":"Kafka consumer: mọi config quan trọng đều xoay quanh poll()","text":"Kafka consumer: mọi config quan trọng đều xoay quanh poll(). Auto commit an toàn hơn nhiều người nghĩ, trừ khi ứng dụng gọi poll() trước lúc xử lý xong lô trước. Bài đi qua từng bước của poll() và playbook khi rebalance liên tục."}

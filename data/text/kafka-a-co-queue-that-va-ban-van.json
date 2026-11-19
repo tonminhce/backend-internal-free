@@ -1,0 +1,1 @@
+{"slug":"kafka-a-co-queue-that-va-ban-van","title":"Kafka đã có queue thật, và vẫn không nên dùng Kafka làm work queue","text":"Kafka đã có queue thật, và vẫn không nên dùng Kafka làm work queue. Chuyện thật: cụm Kafka rebalance liên miên, throughput về 0, và ba miếng vá tôi đã thử. Kafka 4.x đã có share group, nhưng phần lớn công ty vẫn chưa với tới."}

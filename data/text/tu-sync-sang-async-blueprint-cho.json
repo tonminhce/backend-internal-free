@@ -1,0 +1,1 @@
+{"slug":"tu-sync-sang-async-blueprint-cho","title":"Từ sync sang async: bản thiết kế cho import, export và mọi tác vụ chạy lâu","text":"Từ sync sang async: bản thiết kế cho import, export và mọi tác vụ chạy lâu. Bảng jobs, worker, heartbeat, reaper, checkpoint, status API và nơi lưu file: bản thiết kế đủ chi tiết để tự xây trong một sprint, kèm cách chọn queue theo nấc."}
